@@ -18,18 +18,33 @@ public class NotificationDaoImpl implements NotificationDao {
 	@Autowired
     private JdbcTemplate jdbcTemplate;
 
-    private static final String Inserting = "insert into notifications (message, recipient, timestamp) Values (?, ?, Current_timestamp)";
+    private static final String INSERT_NOTIFICATION = 
+        "INSERT INTO notifications (message, recipient, timestamp, status) VALUES (?, ?, ?, ?)";
     
-    private static final String Select_all = "select id, message, recipient, timestamp From notifications Order By timestamp Desc";
+    private static final String SELECT_ALL = 
+        "SELECT * FROM notifications ORDER BY timestamp DESC";
+    
+    private static final String SELECT_BY_RECIPIENT = 
+        "SELECT * FROM notifications WHERE recipient = ? ORDER BY timestamp DESC";
 
     @Override
     public void saveNotification(Notification notification) {
-        jdbcTemplate.update(Inserting, notification.getMessage(), notification.getRecipient());
+        jdbcTemplate.update(INSERT_NOTIFICATION,
+            notification.getMessage(),
+            notification.getRecipient(),
+            notification.getTimestamp(),
+            notification.getStatus()
+        );
     }
 
     @Override
     public List<Notification> getAllNotifications() {
-        return jdbcTemplate.query(Select_all, new NotificationRowMapper());
+        return jdbcTemplate.query(SELECT_ALL, new NotificationRowMapper());
+    }
+
+    @Override
+    public List<Notification> getNotificationsForUser(String recipient) {
+        return jdbcTemplate.query(SELECT_BY_RECIPIENT, new NotificationRowMapper(), recipient);
     }
 
     private static class NotificationRowMapper implements RowMapper<Notification> {
@@ -40,6 +55,7 @@ public class NotificationDaoImpl implements NotificationDao {
             notification.setMessage(rs.getString("message"));
             notification.setRecipient(rs.getString("recipient"));
             notification.setTimestamp(rs.getTimestamp("timestamp").toLocalDateTime());
+            notification.setStatus(rs.getString("status"));
             return notification;
         }
     }

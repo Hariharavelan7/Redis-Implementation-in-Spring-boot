@@ -9,6 +9,7 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.notification.redis_notification.subscriber.NotificationSubscriber;
 
 @Configuration
 public class RedisConfig {
@@ -25,14 +26,17 @@ public class RedisConfig {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
         
+        // Configure JSON serializer
         Jackson2JsonRedisSerializer<Object> serializer = new Jackson2JsonRedisSerializer<>(Object.class);
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-
+        ObjectMapper mapper = objectMapper();
+        serializer.setObjectMapper(mapper);
+        
         template.setKeySerializer(template.getStringSerializer());
         template.setValueSerializer(serializer);
-        template.afterPropertiesSet();
+        template.setHashKeySerializer(template.getStringSerializer());
+        template.setHashValueSerializer(serializer);
         
+        template.afterPropertiesSet();
         return template;
     }
 
@@ -42,9 +46,13 @@ public class RedisConfig {
     }
 
     @Bean
-    RedisMessageListenerContainer redisContainer(RedisConnectionFactory connectionFactory) {
+    RedisMessageListenerContainer redisContainer(
+            RedisConnectionFactory connectionFactory,
+            NotificationSubscriber notificationSubscriber,
+            ChannelTopic topic) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
+        container.addMessageListener(notificationSubscriber, topic);
         return container;
     }
 }

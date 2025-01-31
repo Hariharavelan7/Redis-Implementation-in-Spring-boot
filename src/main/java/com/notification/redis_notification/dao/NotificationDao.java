@@ -6,4 +6,5 @@ import java.util.List;
 public interface NotificationDao {
     void saveNotification(Notification notification);
     List<Notification> getAllNotifications();
+    public List<Notification> getNotificationsForUser(String recipient);
 }
