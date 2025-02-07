@@ -7,6 +7,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.notification.redis_notification.subscriber.NotificationSubscriber;
@@ -14,10 +16,11 @@ import com.notification.redis_notification.subscriber.NotificationSubscriber;
 @Configuration
 public class RedisConfig {
     
-    @Bean
+	@Bean
     public ObjectMapper objectMapper() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         return mapper;
     }
     
@@ -26,10 +29,7 @@ public class RedisConfig {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
         
-        // Configure JSON serializer
         Jackson2JsonRedisSerializer<Object> serializer = new Jackson2JsonRedisSerializer<>(Object.class);
-        ObjectMapper mapper = objectMapper();
-        serializer.setObjectMapper(mapper);
         
         template.setKeySerializer(template.getStringSerializer());
         template.setValueSerializer(serializer);
@@ -46,9 +46,7 @@ public class RedisConfig {
     }
 
     @Bean
-    RedisMessageListenerContainer redisContainer(
-            RedisConnectionFactory connectionFactory,
-            NotificationSubscriber notificationSubscriber,
+    RedisMessageListenerContainer redisContainer(RedisConnectionFactory connectionFactory, NotificationSubscriber notificationSubscriber,
             ChannelTopic topic) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);

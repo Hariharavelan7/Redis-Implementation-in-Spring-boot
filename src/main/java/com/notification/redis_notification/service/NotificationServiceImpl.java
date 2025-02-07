@@ -32,27 +32,14 @@ public class NotificationServiceImpl implements NotificationService {
             notification.setTimestamp(LocalDateTime.now());
             notification.setStatus("SENT");
 
-            // Publish to Redis
-            publisher.publish(notification);
-
-            // Save to PostgreSQL
             notificationDao.saveNotification(notification);
+
+            publisher.publish(notification);
 
             log.info("Notification sent successfully: {}", notification.getId());
         } catch (Exception e) {
             log.error("Failed to send notification: {}", e.getMessage());
             throw new RuntimeException("Failed to send notification: " + e.getMessage());
-        }
-    }
-
-    @Override
-    public void processNotification(Notification notification) {
-        try {
-            notification.setStatus("DELIVERED");
-            notificationDao.saveNotification(notification);
-            log.info("Notification processed: {}", notification.getId());
-        } catch (Exception e) {
-            log.error("Error processing notification: {}", e.getMessage());
         }
     }
 

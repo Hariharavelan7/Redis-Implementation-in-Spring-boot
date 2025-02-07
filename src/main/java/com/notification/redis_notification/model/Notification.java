@@ -1,7 +1,6 @@
 package com.notification.redis_notification.model;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 public class Notification {
     private Long id;
@@ -10,11 +9,9 @@ public class Notification {
     private LocalDateTime timestamp;
     private String status = "SENT"; 
 
-    // Default constructor
     public Notification() {
     }
 
-    // All-args constructor
     public Notification(Long id, String message, String recipient, LocalDateTime timestamp, String status) {
         this.id = id;
         this.message = message;
@@ -23,7 +20,6 @@ public class Notification {
         this.status = status;
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -64,7 +60,6 @@ public class Notification {
         this.status = status;
     }
 
-    // toString method
     @Override
     public String toString() {
         return "Notification{" +
@@ -74,24 +69,5 @@ public class Notification {
                 ", timestamp=" + timestamp +
                 ", status='" + status + '\'' +
                 '}';
-    }
-
-    // equals method
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Notification that = (Notification) o;
-        return Objects.equals(id, that.id) &&
-                Objects.equals(message, that.message) &&
-                Objects.equals(recipient, that.recipient) &&
-                Objects.equals(timestamp, that.timestamp) &&
-                Objects.equals(status, that.status);
-    }
-
-    // hashCode method
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, message, recipient, timestamp, status);
     }
 }

@@ -4,16 +4,13 @@ public class ApiResponse {
     private String message;
     private boolean success;
 
-    // Default constructor
     public ApiResponse() {}
 
-    // Parameterized constructor
     public ApiResponse(String message, boolean success) {
         this.message = message;
         this.success = success;
     }
 
-    // Getters and Setters
     public String getMessage() {
         return message;
     }
@@ -30,7 +27,6 @@ public class ApiResponse {
         this.success = success;
     }
 
-    // toString method for logging or debugging
     @Override
     public String toString() {
         return "ApiResponse{" +
